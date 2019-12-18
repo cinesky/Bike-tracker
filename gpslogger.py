@@ -68,6 +68,23 @@ def checkForFix():
 			else:
 				ser.write("AT+CGNSINF\r")
 
+# Read the GPS data for Latitude and Longitude
+def getCoord():
+	# Start the serial connection
+	ser = serial.Serial("/dev/ttyS0",115200)
+	ser.write("AT+CGNSINF\r")
+	while True:
+		response = ser.readline()
+		if "+CGNSINF: 1," in response:
+			# Split the reading by commas and return the parts referencing lat and long
+			array = response.split(",")
+			lat = array[3]
+			print lat
+			lon = array[4]
+			print lon
+			return (lat,lon)
+
+
 # Start the program by opening the cellular connection and creating a bucket for our data
 if openPPPD():
 	# Initialize the Initial State streamer
@@ -101,3 +118,6 @@ if openPPPD():
 					# Flush the streaming queue and send the data
 					streamer.flush()
 					print "streaming complete"
+
+
+
