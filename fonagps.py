@@ -12,8 +12,8 @@ from ISStreamer.Streamer import Streamer
 
 
 BUCKET_NAME = "GPS TRACKER"
-BUCKET_KEY = "UCJH4B8GUCKR"
-ACCESS_KEY = "ist_6Ase2I9v9MUsfeFAttITn-gepZhatKAk"
+BUCKET_KEY = "YOURS"
+ACCESS_KEY = "YOURS"
 SECONDS_BETWEEN_READS = 10.0 #tesztelés után beillesztése a kódba
 TWITTER_STATUSUPDATE = "My bike is stolen follow it here: \n https://go.init.st/5w470cv"
 SMSSEND = "AT+CMGS=\"+36204071023\"\r"
@@ -24,7 +24,7 @@ def boot():
 	subprocess.call("python GSM_PWRKEY.py", shell=True)
 	sleep(5)
 	ser = serial.Serial("/dev/ttyS0",115200)
-	ser.write("AT+CPIN=1726\r")
+	ser.write("AT+CPIN=****\r")
 	sleep(2)
 	ser.write("AT+CGNSPWR=1\r")
 	sleep(2)
@@ -101,8 +101,8 @@ def lostgpsSMS():
 
 def tweet():
 	# Authenticate to Twitter
-	auth = OAuthHandler("rgCWVMVJzQUyWVr8klOqgR9kH", "6pzc2ZgDYFr1ElfITTW3mLH31g4gC3UWTqQKzdIsgGTLKZtXRd")
-	auth.set_access_token("2803691216-0pWIbkmWYVoTtveQnx0xT3nY3s8y9aF3Z5Fl0fq","BwTcLdYML88y0tnmq7Evgwn2mlqYMz5fDPosnFD9keeri")
+	auth = OAuthHandler("YOURS", "YOURS")
+	auth.set_access_token("YOURS","YOURS")
 	api = tweepy.API(auth)
 	# test authentication
 	api.update_status("My bike is stolen follow it here: \n https://go.init.st/5w470cv")
