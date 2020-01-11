@@ -11,10 +11,10 @@ from time import sleep
 from ISStreamer.Streamer import Streamer
 
 
-BUCKET_NAME = "GPS TRACKER"
-BUCKET_KEY = "YOURS"
-ACCESS_KEY = "YOURS"
-SECONDS_BETWEEN_READS = 10.0 #tesztelés után beillesztése a kódba
+BUCKET_NAME = "GPS streamer"
+BUCKET_KEY = "****"
+ACCESS_KEY = "*****************************"
+SECONDS_BETWEEN_READS = 10.0 #after testing set back to 60
 TWITTER_STATUSUPDATE = "My bike is stolen follow it here: \n https://go.init.st/5w470cv"
 SMSSEND = "AT+CMGS=\"+36204071023\"\r"
 SMSTEXT = "Your Bike is stolen!"
@@ -101,38 +101,12 @@ def lostgpsSMS():
 
 def tweet():
 	# Authenticate to Twitter
-	auth = OAuthHandler("YOURS", "YOURS")
-	auth.set_access_token("YOURS","YOURS")
+	auth = OAuthHandler("rgCWVMVJzQUyWVr8klOqgR9kH", "6pzc2ZgDYFr1ElfITTW3mLH31g4gC3UWTqQKzdIsgGTLKZtXRd")
+	auth.set_access_token("2803691216-0pWIbkmWYVoTtveQnx0xT3nY3s8y9aF3Z5Fl0fq","BwTcLdYML88y0tnmq7Evgwn2mlqYMz5fDPosnFD9keeri")
 	api = tweepy.API(auth)
 	# test authentication
 	api.update_status("My bike is stolen follow it here: \n https://go.init.st/5w470cv")
 
-
-def bikeIsStolen():
-	tweet()
-	#sendSMS()
-	print "sms is sent!"
-	return True
-
-def checkLock():
-	ser = serial.Serial("/dev/ttyS0",115200)
-	ser.write("AT+BTPOWER=1\r")
-	ser.write("AT+BTSCAN=1,10\r")
-	print "scanning bluetooth"
-	sleep(4)
-	while True:
-		reply = ser.readline()
-		if "+BTSCAN: 0," in reply:
-			print "In search"
-			if "a4:50:46:a3:8f:6a" in reply:
-				print "Found MI A2"
-				return True
-				break
-		else:
-			print "bike is stolen!"
-			bikeIsStolen()
-			break
-	
 
 # Check for a GPS fix
 def checkForFix(FIRSTFIX):
@@ -151,6 +125,10 @@ def checkForFix(FIRSTFIX):
 		# Check if a fix was found
 		if "+CGNSINF: 1,1," in reply:
 			print "fix found"
+			if FIRSTFIX:
+				piisreadySMS()
+				sleep(10)
+
 			print reply
 			return True
 		# If a fix wasn't found, wait and try again
@@ -180,9 +158,10 @@ def getCoordandSpeed():
 			lat = array[3]
 			print lat
 			lon = array[4]
+			alt = array[5]
 			print lon
 			speed = array[6]
-			return (lat,lon,speed)
+			return (lat,lon,speed,alt)
 
 
 
@@ -193,10 +172,10 @@ def check(speedlog, val=2):
             move=move+1
     if move > 3:
         return True
-		
 
-sleep(100)
-boot()
+
+#sleep(50)
+#boot()
 FIRSTFIX = True
 # Start the program by opening the cellular connection and creating a bucket for our data
 if openPPPD():
@@ -214,13 +193,15 @@ if openPPPD():
 			FIRSTFIX = False
 			# Get lat and long
 			if getCoordandSpeed():
-				latitude, longitude, speed = getCoordandSpeed()
+				latitude, longitude, speed, altitude = getCoordandSpeed()
 				coord = str(latitude) + "," + str(longitude)
 				print coord
 				print speed
+				print altitude
 				# Buffer the coordinates to be streamed
 				streamer.log("Coordinates",coord)
 				streamer.log("Speed",speed)
+				streamer.log("Altitude", altitude)
 				sleep(2)
 				if openPPPD():
 					print "streaming"
